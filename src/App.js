@@ -25,29 +25,38 @@ class App extends React.Component {
       );
       const data = await api_url.json();
       console.log(data);
-      // sunset
-      var sunset = data.sys.sunset;
-      var date = new Date();
-      date.setTime(sunset);
-      var sunset_date =
-        date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 
-      // sunrise
-      var sunrise = data.sys.sunrise;
-      var date = new Date();
-      date.setTime(sunrise);
-      var sunrise_date =
-        date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+      if (data.cod === 200) {
+        const time = (ms) => {
+          var date = new Date(ms * 1000);
+          var hours = date.getHours();
+          var minutes = "0" + date.getMinutes();
+          var seconds = "0" + date.getSeconds();
+          return hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
+        };
+        var sunrise_date = time(data.sys.sunrise);
+        var sunset_date = time(data.sys.sunset);
 
-      this.setState({
-        temp: data.main.temp,
-        city: data.name,
-        country: data.sys.country,
-        sunrise: sunrise_date,
-        sunset: sunset_date,
-        pressure: data.main.pressure,
-        error: undefined,
-      });
+        this.setState({
+          temp: data.main.temp,
+          city: data.name,
+          country: data.sys.country,
+          sunrise: sunrise_date,
+          sunset: sunset_date,
+          pressure: data.main.pressure,
+          error: undefined,
+        });
+      } else {
+        this.setState({
+          temp: undefined,
+          city: undefined,
+          country: undefined,
+          sunrise: undefined,
+          sunset: undefined,
+          pressure: undefined,
+          error: "Неверное название города!",
+        });
+      }
     } else {
       this.setState({
         temp: undefined,
@@ -63,18 +72,30 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
-        <Info />
-        <Form weatherMethod={this.gettingWeather} />
-        <Weather
-          temp={this.state.temp}
-          city={this.state.city}
-          country={this.state.country}
-          sunrise={this.state.sunrise}
-          sunset={this.state.sunset}
-          pressure={this.state.pressure}
-          error={this.state.error}
-        />
+      <div className="wrapper">
+        <div className="main">
+          <div className="container">
+            <div className="row">
+              <div className="col-sm-6 col-md-4 col-lg-6 info">
+                <Info />
+              </div>
+              <div className="col-sm-6 col-md-4 col-lg-6 form">
+                <Form weatherMethod={this.gettingWeather} />
+                <div className="col-sm-6 col-md-4 col-lg-6">
+                  <Weather
+                    temp={this.state.temp}
+                    city={this.state.city}
+                    country={this.state.country}
+                    sunrise={this.state.sunrise}
+                    sunset={this.state.sunset}
+                    pressure={this.state.pressure}
+                    error={this.state.error}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
